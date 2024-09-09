@@ -1,0 +1,119 @@
+/* Chatbox Container */
+.chatbox-container {
+    position: fixed;
+    bottom: 70px;
+    right: 20px; /* Anchored to the left */
+    width: 350px;
+    height: 500px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    border: 1px ; 
+  }
+  
+  /* Chatbox Header */
+  .chatbox-header {
+    background-color: #87CEEB; /* Green header */
+    color: #ffffff;
+    padding: 1px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+  }
+  
+  /* Chatbox Messages Area */
+  .chatbox-messages {
+    flex: 1;
+    padding: 20px;
+    background-color: #f9f9f9;
+    overflow-y: auto;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .chatbox-messages p {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    color: #333;
+  }
+  
+  .chatbox-messages p.sent {
+    background-color: #4CAF50;
+    color: #fff;
+    text-align: right;
+  }
+  
+  /* Chatbox Input Area */
+  .chatbox-input {
+    padding: 10px;
+    display: flex;
+    border-top: 1px solid #ddd;
+    background-color: #f1f1f1;
+  }
+  
+  /* Input Field */
+  .chatbox-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    font-size: 16px;
+    margin-right: 10px;
+  }
+  
+  /* Send Button */
+  .chatbox-input button {
+    background-color: #4CAF50; /* Green send button */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .chatbox-input button:hover {
+    background-color: #45a049; /* Darker green on hover */
+  }
+  
+  /* Chatbox Animations */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .chatbox-container {
+    animation: slideIn 0.5s ease-out;
+  }
+
+  /* Chat Icon */
+.chat-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 1000;
+  }
+  
+  .chat-icon i {
+    color: #ffffff;
+    font-size: 24px;
+  }

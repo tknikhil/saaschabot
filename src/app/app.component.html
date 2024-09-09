@@ -332,5 +332,22 @@
 <!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
+<!-- Chat Icon -->
+<div class="chat-icon" (click)="toggleChatbox()">
+  <i class="fas fa-comments"></i>
+</div>
 
+<!-- Chatbox Container -->
+<div class="chatbox-container" *ngIf="isChatboxOpen">
+  <div class="chatbox-header">
+    <h3>Chat with us!</h3>
+  </div>
+  <div class="chatbox-messages">
+    <p *ngFor="let message of messages" [ngClass]="{'sent': isSentByUser(message)}">{{ message }}</p>
+  </div>
+  <div class="chatbox-input">
+    <input [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Type your message..." />
+    <button (click)="sendMessage()">Send</button>
+  </div>
 <router-outlet />
+
