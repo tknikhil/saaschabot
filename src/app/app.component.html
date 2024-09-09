@@ -346,8 +346,20 @@
     <p *ngFor="let message of messages" [ngClass]="{'sent': isSentByUser(message)}">{{ message }}</p>
   </div>
   <div class="chatbox-input">
-    <input [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Type your message..." />
-    <button (click)="sendMessage()">Send</button>
+    <textarea [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Type your message..."></textarea>
+
+    <!-- Emoji Picker Icon to toggle emoji picker -->
+    <button  class="emo-btn" (click)="toggleEmojiPicker()">😀</button>
+
+    <!-- Emoji Picker Container -->
+    <div *ngIf="showEmojiPicker" class="emoji-picker-container">
+      <!-- Use emoji-mart here for emoji selection -->
+      <emoji-mart (emojiSelect)="addEmoji($event)" set="apple"></emoji-mart>
+    </div>
+
+    <!-- Send Button -->
+    <button class="snd-btn" (click)="sendMessage()">Send</button>
   </div>
+</div>
 <router-outlet />
 

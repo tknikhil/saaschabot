@@ -1,8 +1,9 @@
-/* Chatbox Container */
+
+
 .chatbox-container {
     position: fixed;
     bottom: 70px;
-    right: 20px; /* Anchored to the left */
+    right: 20px;
     width: 350px;
     height: 500px;
     background-color: #ffffff;
@@ -12,20 +13,18 @@
     flex-direction: column;
     font-family: 'Arial', sans-serif;
     overflow: hidden;
-    border: 1px ; 
+    animation: slideIn 1s ease-out;
   }
   
-  /* Chatbox Header */
   .chatbox-header {
-    background-color: #87CEEB; /* Green header */
+    background-color: #87CEEB;
     color: #ffffff;
     padding: 1px;
     text-align: center;
-    font-size: 15px;
+    font-size: 10px;
     font-weight: bold;
   }
   
-  /* Chatbox Messages Area */
   .chatbox-messages {
     flex: 1;
     padding: 20px;
@@ -49,57 +48,51 @@
     text-align: right;
   }
   
-  /* Chatbox Input Area */
   .chatbox-input {
     padding: 10px;
     display: flex;
+    align-items: center;
+    position: relative; /* Make this relative to position emoji picker properly */
     border-top: 1px solid #ddd;
     background-color: #f1f1f1;
   }
   
-  /* Input Field */
-  .chatbox-input input {
+  textarea {
     flex: 1;
     padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
-    font-size: 16px;
-    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    resize: none;
   }
   
-  /* Send Button */
-  .chatbox-input button {
+  .snd-btn {
     background-color: #4CAF50; /* Green send button */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
   }
   
-  .chatbox-input button:hover {
-    background-color: #45a049; /* Darker green on hover */
+  .emoji-picker-container {
+    position: absolute;
+    bottom: 70px; /* Adjust based on the height of the chat input */
+    right: 10px;
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 320px; /* Set a fixed width for the emoji picker */
+    max-height: 300px; /* Set a maximum height */
+    overflow-y: auto; /* Make it scrollable */
   }
   
-  /* Chatbox Animations */
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(100%);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .emoji-picker-container emoji-mart {
+    width: 100%;
   }
-  
-  .chatbox-container {
-    animation: slideIn 0.5s ease-out;
-  }
-
   /* Chat Icon */
 .chat-icon {
     position: fixed;
@@ -117,3 +110,9 @@
     color: #ffffff;
     font-size: 24px;
   }
+.emo-btn{
+    background: transparent;
+    font-size: small;
+    border:none;
+}
+ 
