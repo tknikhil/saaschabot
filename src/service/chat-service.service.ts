@@ -1,6 +1,6 @@
-import { Injectable,Signal,signal } from '@angular/core';
+import { Injectable, Signal, signal } from '@angular/core';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -9,16 +9,23 @@ import { Observable } from 'rxjs';
 export class ChatServiceService {
   private apiUrl = 'http://localhost:3000/api/chat'; // HTTP endpoint URL
   private webSocketUrl = 'ws://localhost:3000'; // WebSocket URL
-  private chatSocket: WebSocketSubject<any>;
+  private chatSocket!: WebSocketSubject<any>;
   private messagesSignal = signal<string[]>([]); // Signal for messages
+  private token: string | null = null; // Store JWT token
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient) {}
+
+  // Method to initialize the WebSocket connection (called after login)
+  private initializeWebSocketConnection(): void {
+    if (!this.token) {
+      console.error('No token found, cannot connect to WebSocket');
+      return;
+    }
+
     console.log('Initializing WebSocket connection...');
     this.chatSocket = webSocket({
-      url: this.webSocketUrl,
-      // Custom deserializer to handle both text and Blob messages
+      url: `${this.webSocketUrl}?token=${this.token}`, // Attach the token as a query parameter
       deserializer: (event: any) => {
-        // Check if the message is a Blob
         if (event.data instanceof Blob) {
           return event.data.text(); // Convert Blob to text
         } else {
@@ -34,8 +41,8 @@ export class ChatServiceService {
     );
   }
 
+  // Handle incoming messages from WebSocket
   private handleMessage(message: any): void {
-    console.log(message,"messagez");
     if (typeof message === 'string') {
       this.messagesSignal.update(messages => [...messages, message]);
     } else if (message instanceof Blob) {
@@ -55,13 +62,45 @@ export class ChatServiceService {
     this.chatSocket.next(msg);
   }
 
-  // Send a message using HTTP (optional)
+  // Send a message using HTTP
   sendHttpMessage(message: string): Observable<any> {
-    return this.http.post(this.apiUrl, { message });
+    return this.http.post(this.apiUrl, { message }, { headers: this.getAuthHeaders() });
   }
 
   // Get chat history using HTTP
   getChatHistory(): Observable<any> {
-    return this.http.get(this.apiUrl + '/history');
+    return this.http.get(this.apiUrl + '/history', { headers: this.getAuthHeaders() });
+  }
+
+  // Login method
+  login(username: string, password: string): Observable<any> {
+    return this.http.post('http://localhost:3000/api/login', { username, password });
+  }
+
+  // Store token after login and initialize WebSocket connection
+  storeTokenAndInitializeConnection(token: string): void {
+    this.token = token;
+    localStorage.setItem('token', token); // Store the token locally for persistence
+    this.initializeWebSocketConnection(); // Connect to WebSocket
+  }
+
+  // Get the token from local storage
+  private getToken(): string | null {
+    return this.token || localStorage.getItem('token');
+  }
+
+  // Get headers with authorization token for HTTP requests
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return new HttpHeaders().set('Authorization', token ? `Bearer ${token}` : '');
+  }
+
+  // Logout method to clear token
+  logout(): void {
+    this.token = null;
+    localStorage.removeItem('token');
+    if (this.chatSocket) {
+      this.chatSocket.complete(); // Close WebSocket connection
+    }
   }
 }

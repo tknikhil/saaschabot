@@ -1,0 +1,127 @@
+
+
+.chatbox-container {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    animation: slideIn 1s ease-out;
+  }
+  
+  .chatbox-header {
+    background-color: #87CEEB;
+    color: #ffffff;
+    padding: 1px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+  }
+  
+  .chatbox-messages {
+    flex: 1;
+    padding: 20px;
+    background-color: #f9f9f9;
+    overflow-y: auto;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .chatbox-messages p {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    color: #333;
+  }
+  
+  .chatbox-messages p.sent {
+    background-color: #4CAF50;
+    color: #fff;
+    text-align: right;
+  }
+  
+  .chatbox-input {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    position: relative; /* Make this relative to position emoji picker properly */
+    border-top: 1px solid #ddd;
+    background-color: #f1f1f1;
+  }
+  
+  textarea {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    resize: none;
+  }
+  
+  .snd-btn {
+    background-color:#4CAF50; /* A blue color for the button */
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .snd-btn i {
+    font-size: 1.2rem;
+  }
+  
+  .snd-btn:hover {
+    background-color:green; /* A darker blue when hovered */
+  }
+  
+  .emoji-picker-container {
+    position: absolute;
+    bottom: 70px; /* Adjust based on the height of the chat input */
+    right: 10px;
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 320px; /* Set a fixed width for the emoji picker */
+    max-height: 300px; /* Set a maximum height */
+    overflow-y: auto; /* Make it scrollable */
+  }
+  
+  .emoji-picker-container emoji-mart {
+    width: 100%;
+  }
+  /* Chat Icon */
+.chat-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 1000;
+  }
+  .chat-icon:hover {
+    background-color:green; /* A darker blue when hovered */
+  }
+  
+  .chat-icon i {
+    color: #ffffff;
+    font-size: 24px;
+  }
+.emo-btn{
+    background: transparent;
+    font-size: small;
+    border:none;
+}
+ 
