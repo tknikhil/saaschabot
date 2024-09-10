@@ -8,12 +8,13 @@ import { Observable } from 'rxjs';
 })
 export class ChatServiceService {
   private apiUrl = 'http://localhost:3000/api/chat'; // HTTP endpoint URL
+  private loginApiUrl = 'http://localhost:3000/api/login'; // HTTP endpoint Login URL
   private webSocketUrl = 'ws://localhost:3000'; // WebSocket URL
   private chatSocket!: WebSocketSubject<any>;
   private messagesSignal = signal<string[]>([]); // Signal for messages
   private token: string | null = null; // Store JWT token
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient ) {}
 
   // Method to initialize the WebSocket connection (called after login)
   private initializeWebSocketConnection(): void {
@@ -40,6 +41,11 @@ export class ChatServiceService {
       () => console.log('WebSocket connection closed')
     );
   }
+    // Get headers with authorization token for HTTP requests
+    private getAuthHeaders(): HttpHeaders {
+      const token = this.getToken();
+      return new HttpHeaders().set('Authorization', token ? `Bearer ${token}` : '');
+    }
 
   // Handle incoming messages from WebSocket
   private handleMessage(message: any): void {
@@ -58,14 +64,14 @@ export class ChatServiceService {
   }
 
   // Send a message using WebSocket
-  sendMessage(msg: string): void {
-    this.chatSocket.next(msg);
-  }
+  // sendMessage(msg: string): void {
+  //   this.chatSocket.next(msg);
+  // }
 
-  // Send a message using HTTP
-  sendHttpMessage(message: string): Observable<any> {
-    return this.http.post(this.apiUrl, { message }, { headers: this.getAuthHeaders() });
-  }
+ // Send a message using HTTP
+sendHttpMessage(message: ChatMessage): Observable<any> {
+  return this.http.post(this.apiUrl, message, { headers: this.getAuthHeaders() });
+}
 
   // Get chat history using HTTP
   getChatHistory(): Observable<any> {
@@ -74,7 +80,7 @@ export class ChatServiceService {
 
   // Login method
   login(username: string, password: string): Observable<any> {
-    return this.http.post('http://localhost:3000/api/login', { username, password });
+    return this.http.post(this.loginApiUrl, { username, password });
   }
 
   // Store token after login and initialize WebSocket connection
@@ -89,11 +95,7 @@ export class ChatServiceService {
     return this.token || localStorage.getItem('token');
   }
 
-  // Get headers with authorization token for HTTP requests
-  private getAuthHeaders(): HttpHeaders {
-    const token = this.getToken();
-    return new HttpHeaders().set('Authorization', token ? `Bearer ${token}` : '');
-  }
+
 
   // Logout method to clear token
   logout(): void {

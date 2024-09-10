@@ -1,5 +1,3 @@
-
-
 .chatbox-container {
     position: fixed;
     bottom: 70px;
@@ -14,45 +12,61 @@
     font-family: 'Arial', sans-serif;
     overflow: hidden;
     animation: slideIn 1s ease-out;
+    z-index: 1000; /* Ensure it overlaps other elements */
   }
   
   .chatbox-header {
-    background-color: #87CEEB;
+    background-color: #87ceeb;
     color: #ffffff;
-    padding: 1px;
+    padding: 10px;
     text-align: center;
-    font-size: 10px;
+    font-size: 14px;
     font-weight: bold;
   }
   
   .chatbox-messages {
     flex: 1;
-    padding: 20px;
+    padding: 10px;
     background-color: #f9f9f9;
     overflow-y: auto;
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
   }
   
-  .chatbox-messages p {
-    margin: 10px 0;
-    padding: 10px;
-    background-color: #f1f1f1;
-    border-radius: 5px;
-    color: #333;
+  .chatbox-messages .message-wrapper {
+    display: flex;
+    margin-bottom: 10px;
   }
   
-  .chatbox-messages p.sent {
-    background-color: #4CAF50;
-    color: #fff;
-    text-align: right;
+  .sent-message {
+    justify-content: flex-end;
+  }
+  
+  .received-message {
+    justify-content: flex-start;
+  }
+  
+  .message-wrapper p {
+    max-width: 60%;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    display: inline-block;
+  }
+  
+  .sent-message p {
+    background-color: #4caf50; /* Green for sent messages */
+  }
+  
+  .received-message p {
+    background-color: #2196f3; /* Blue for received messages */
   }
   
   .chatbox-input {
     padding: 10px;
     display: flex;
     align-items: center;
-    position: relative; /* Make this relative to position emoji picker properly */
+    position: relative; /* For emoji picker */
     border-top: 1px solid #ddd;
     background-color: #f1f1f1;
   }
@@ -66,7 +80,7 @@
   }
   
   .snd-btn {
-    background-color:#4CAF50; /* A blue color for the button */
+    background-color: #4caf50;
     color: white;
     border: none;
     padding: 10px;
@@ -79,49 +93,51 @@
   }
   
   .snd-btn:hover {
-    background-color:green; /* A darker blue when hovered */
+    background-color: green;
+  }
+  
+  .emo-btn {
+    background: transparent;
+    font-size: small;
+    border: none;
+    cursor: pointer;
   }
   
   .emoji-picker-container {
     position: absolute;
-    bottom: 70px; /* Adjust based on the height of the chat input */
+    bottom: 60px;
     right: 10px;
     z-index: 1000;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 320px; /* Set a fixed width for the emoji picker */
-    max-height: 300px; /* Set a maximum height */
-    overflow-y: auto; /* Make it scrollable */
+    width: 320px;
+    max-height: 300px;
+    overflow-y: auto;
   }
   
   .emoji-picker-container emoji-mart {
     width: 100%;
   }
-  /* Chat Icon */
-.chat-icon {
+  
+  .chat-icon {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #4CAF50;
+    background-color: #4caf50;
     border-radius: 50%;
     padding: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     cursor: pointer;
-    z-index: 1000;
+    z-index: 999; /* Ensure it shows above other content but below chatbox */
   }
+  
   .chat-icon:hover {
-    background-color:green; /* A darker blue when hovered */
+    background-color: green;
   }
   
   .chat-icon i {
     color: #ffffff;
     font-size: 24px;
   }
-.emo-btn{
-    background: transparent;
-    font-size: small;
-    border:none;
-}
- 

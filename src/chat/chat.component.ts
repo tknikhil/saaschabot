@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 
+import { ChatMessage } from './chat-message.model';
+
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -15,7 +17,7 @@ import { PickerComponent } from '@ctrl/ngx-emoji-mart';
     PickerComponent,
   ],
   templateUrl: './chat.component.html',
-  styleUrl: './chat.component.scss'
+  styleUrls: ['./chat.component.scss']
 })
 export class ChatComponent {
   title = 'saaschabot';
@@ -23,16 +25,17 @@ export class ChatComponent {
   isChatboxOpen = signal(false);
   showEmojiPicker = signal(false); // Flag to toggle the emoji picker
 
-  // Reactive state for messages
-  messages = computed(() => this.chatService.getMessages()());
-  
-  constructor(private chatService: ChatServiceService,private router: Router) {}
+  // Signal to hold an array of ChatMessage objects
+  messages = signal<ChatMessage[]>([]);
+
+  constructor(private chatService: ChatServiceService, private router: Router) {}
 
   toggleChatbox() {
     this.isChatboxOpen.update(state => !state);
   }
-   // Toggle emoji picker visibility
-   toggleEmojiPicker() {
+
+  // Toggle emoji picker visibility
+  toggleEmojiPicker() {
     this.showEmojiPicker.update(state => !state);
   }
 
@@ -41,35 +44,61 @@ export class ChatComponent {
     this.newMessage.update(msg => msg + event.emoji.native);   // Add emoji to the newMessage input field
   }
 
-
   ngOnInit(): void {
-    // Subscribe to the Signal for incoming chat messages
-    // this.chatService.getMessages().subscribe((messages: string[]) => {
-    //   this.messages = messages;
-    // });
-
     const token = localStorage.getItem('token');
     if (!token) {
       this.router.navigate(['/login']);
     }
+
+    // Load initial chat messages
+    this.loadMessages();
+  }
+
+  loadMessages(): void {
+    // Assuming getMessages() returns string[], we map the strings into ChatMessage[] format
+    const messageArray = this.chatService.getMessages()(); // string[]
+
+    const formattedMessages: ChatMessage[] = messageArray.map((message: string) => {
+      // Assuming that the message format is something like 'Sender: Message'
+      const [sender, ...contentParts] = message.split(':');
+      const content = contentParts.join(':').trim();
+      return {
+        sender: sender.trim(),
+        role: sender === 'User' ? 'customer' : 'support', // Assuming 'User' or 'Support' role based on sender
+        content: content,
+        timestamp: new Date(), // You can adjust the timestamp if you have it from the backend
+      };
+    });
+
+    this.messages.update(() => formattedMessages);
   }
 
   sendMessage(): void {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     if (this.newMessage()!.trim()) {
+      const message: ChatMessage = {
+        sender: currentUser.username,   // Assuming you store 'username' in localStorage
+        role: currentUser.role,         // Role could be 'customer' or 'support'
+        content: this.newMessage(),
+        timestamp: new Date(),
+      };
+  
       // Send the message via WebSocket
-      this.chatService.sendMessage(this.newMessage());
-
+      // this.chatService.sendMessage(message);
+  
       // Optionally, also send the message via HTTP if needed
-      this.chatService.sendHttpMessage(this.newMessage()).subscribe();
-
+      this.chatService.sendHttpMessage(message).subscribe();
+  
       // Clear the input field
       this.newMessage.update(() => '');
+  
+      // Add the new message to the local message list
+      this.messages.update(messages => [...messages, message]);
     }
   }
 
-  isSentByUser(message: any): boolean {
-    // Add logic to determine if the message was sent by the user or not
-    // For now, it's just a placeholder
-    return typeof message === 'string' && message.startsWith('User:');
+  isSentByUser(message: ChatMessage): boolean {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    return message.sender === currentUser.username;
   }
 }
