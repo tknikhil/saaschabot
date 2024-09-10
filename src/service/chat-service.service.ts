@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable,Signal,signal } from '@angular/core';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,6 +10,7 @@ export class ChatServiceService {
   private apiUrl = 'http://localhost:3000/api/chat'; // HTTP endpoint URL
   private webSocketUrl = 'ws://localhost:3000'; // WebSocket URL
   private chatSocket: WebSocketSubject<any>;
+  private messagesSignal = signal<string[]>([]); // Signal for messages
 
   constructor(private http: HttpClient) {
     console.log('Initializing WebSocket connection...');
@@ -27,35 +28,31 @@ export class ChatServiceService {
     });
 
     this.chatSocket.subscribe(
-      msg => console.log('Received WebSocket message:', msg),
+      msg => this.handleMessage(msg),
       err => console.error('WebSocket error:', err),
       () => console.log('WebSocket connection closed')
     );
   }
 
+  private handleMessage(message: any): void {
+    console.log(message,"messagez");
+    if (typeof message === 'string') {
+      this.messagesSignal.update(messages => [...messages, message]);
+    } else if (message instanceof Blob) {
+      message.text().then(text => this.messagesSignal.update(messages => [...messages, text])).catch(err => console.error(err));
+    } else {
+      console.error('Unexpected message type:', message);
+    }
+  }
+
+  // Get messages as a Signal
+  getMessages(): Signal<string[]> {
+    return this.messagesSignal;
+  }
+
   // Send a message using WebSocket
   sendMessage(msg: string): void {
     this.chatSocket.next(msg);
-  }
-
-  // Get incoming messages from WebSocket
-  getMessages(): Observable<string> {
-    return new Observable<string>(observer => {
-      this.chatSocket.subscribe(
-        (message: any) => {
-          if (typeof message === 'string') {
-            observer.next(message);
-          } else if (message instanceof Blob) {
-            // Convert Blob to text and pass to observer
-            message.text().then(text => observer.next(text)).catch(err => observer.error(err));
-          } else {
-            console.error('Unexpected message type:', message);
-          }
-        },
-        err => observer.error(err),
-        () => observer.complete()
-      );
-    });
   }
 
   // Send a message using HTTP (optional)
