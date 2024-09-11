@@ -343,7 +343,7 @@
       <h3>Chat with us!</h3>
     </div>
     <div class="chatbox-messages">
-      <p *ngFor="let message of messages()" [ngClass]="{'sent-message': isSentByUser(message), 'received-message': !isSentByUser(message)}">{{ message }}</p>
+      <p *ngFor="let message of messages()" [ngClass]="{'sent-message': isSentByUser(message), 'received-message': !isSentByUser(message)}"> <strong>{{ message.role }}:</strong> {{ message.content }}</p>
     </div>
     <div class="chatbox-input">
       <textarea [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Type your message..."></textarea>

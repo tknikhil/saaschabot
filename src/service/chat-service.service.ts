@@ -1,17 +1,17 @@
-import { Injectable, Signal, signal } from '@angular/core';
+import { Observable } from "rxjs";
+import { ChatMessage } from "../chat/chat-message.model";
+import { Injectable, signal, Signal } from "@angular/core";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root' // This makes the service a singleton and available app-wide
 })
 export class ChatServiceService {
   private apiUrl = 'http://localhost:3000/api/chat'; // HTTP endpoint URL
   private loginApiUrl = 'http://localhost:3000/api/login'; // HTTP endpoint Login URL
   private webSocketUrl = 'ws://localhost:3000'; // WebSocket URL
   private chatSocket!: WebSocketSubject<any>;
-  private messagesSignal = signal<string[]>([]); // Signal for messages
+  private messagesSignal = signal<ChatMessage[]>([]); // Signal for messages
   private token: string | null = null; // Store JWT token
 
   constructor(private http: HttpClient ) {}
@@ -26,11 +26,12 @@ export class ChatServiceService {
     console.log('Initializing WebSocket connection...');
     this.chatSocket = webSocket({
       url: `${this.webSocketUrl}?token=${this.token}`, // Attach the token as a query parameter
-      deserializer: (event: any) => {
-        if (event.data instanceof Blob) {
-          return event.data.text(); // Convert Blob to text
-        } else {
-          return event.data; // Handle as text directly
+      deserializer: (event: MessageEvent) => {
+        try {
+          return JSON.parse(event.data); // Parse WebSocket message as JSON
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
+          return event.data; // Return raw data if parsing fails
         }
       },
     });
@@ -41,37 +42,53 @@ export class ChatServiceService {
       () => console.log('WebSocket connection closed')
     );
   }
-    // Get headers with authorization token for HTTP requests
-    private getAuthHeaders(): HttpHeaders {
-      const token = this.getToken();
-      return new HttpHeaders().set('Authorization', token ? `Bearer ${token}` : '');
-    }
+
+  // Get headers with authorization token for HTTP requests
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return new HttpHeaders().set('Authorization', token ? `Bearer ${token}` : '');
+  }
 
   // Handle incoming messages from WebSocket
   private handleMessage(message: any): void {
-    if (typeof message === 'string') {
-      this.messagesSignal.update(messages => [...messages, message]);
-    } else if (message instanceof Blob) {
-      message.text().then(text => this.messagesSignal.update(messages => [...messages, text])).catch(err => console.error(err));
+    console.log('Raw message received:', message);
+    if (message && typeof message === 'object' && message.sender && message.role) {
+      const content = message.content || ''; // Provide a default value if content is missing
+      const timestamp = message.timestamp ? new Date(message.timestamp) : new Date(); // Default to now if timestamp is missing
+      
+      // Update the messages signal with the parsed object
+      this.messagesSignal.update(messages => [
+        ...messages,
+        {
+          sender: message.sender,
+          role: message.role,
+          content: content,
+          timestamp: timestamp,
+        },
+      ]);
     } else {
-      console.error('Unexpected message type:', message);
+      console.error('Unexpected message format:', message);
     }
   }
 
   // Get messages as a Signal
-  getMessages(): Signal<string[]> {
+  getMessages(): Signal<ChatMessage[]> {
     return this.messagesSignal;
   }
 
   // Send a message using WebSocket
-  // sendMessage(msg: string): void {
-  //   this.chatSocket.next(msg);
-  // }
+  sendMessage(message: ChatMessage): void {
+    if (this.chatSocket) {
+      this.chatSocket.next(message);
+    } else {
+      console.error('WebSocket is not connected.');
+    }
+  }
 
- // Send a message using HTTP
-sendHttpMessage(message: ChatMessage): Observable<any> {
-  return this.http.post(this.apiUrl, message, { headers: this.getAuthHeaders() });
-}
+  // Send a message using HTTP
+  sendHttpMessage(message: ChatMessage): Observable<any> {
+    return this.http.post(this.apiUrl, message, { headers: this.getAuthHeaders() });
+  }
 
   // Get chat history using HTTP
   getChatHistory(): Observable<any> {
@@ -94,8 +111,6 @@ sendHttpMessage(message: ChatMessage): Observable<any> {
   private getToken(): string | null {
     return this.token || localStorage.getItem('token');
   }
-
-
 
   // Logout method to clear token
   logout(): void {

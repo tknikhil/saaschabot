@@ -48,6 +48,8 @@ export class ChatComponent {
     const token = localStorage.getItem('token');
     if (!token) {
       this.router.navigate(['/login']);
+    } else {
+      this.chatService.storeTokenAndInitializeConnection(token);  // Initialize WebSocket connection
     }
 
     // Load initial chat messages
@@ -55,36 +57,25 @@ export class ChatComponent {
   }
 
   loadMessages(): void {
-    // Assuming getMessages() returns string[], we map the strings into ChatMessage[] format
-    const messageArray = this.chatService.getMessages()(); // string[]
-
-    const formattedMessages: ChatMessage[] = messageArray.map((message: string) => {
-      // Assuming that the message format is something like 'Sender: Message'
-      const [sender, ...contentParts] = message.split(':');
-      const content = contentParts.join(':').trim();
-      return {
-        sender: sender.trim(),
-        role: sender === 'User' ? 'customer' : 'support', // Assuming 'User' or 'Support' role based on sender
-        content: content,
-        timestamp: new Date(), // You can adjust the timestamp if you have it from the backend
-      };
-    });
-
-    this.messages.update(() => formattedMessages);
+    const messageArray = this.chatService.getMessages()(); // Already ChatMessage[]
+  
+    // No need to map or reformat, just update the signal directly
+    this.messages.update(() => messageArray);
   }
 
   sendMessage(): void {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    console.log(currentUser.sender);
     if (this.newMessage()!.trim()) {
       const message: ChatMessage = {
-        sender: currentUser.username,   // Assuming you store 'username' in localStorage
+        sender: currentUser.sender,   // Assuming you store 'username' in localStorage
         role: currentUser.role,         // Role could be 'customer' or 'support'
         content: this.newMessage(),
         timestamp: new Date(),
       };
-  
+console.log(message.role)
       // Send the message via WebSocket
-      // this.chatService.sendMessage(message);
+      this.chatService.sendMessage(message);
   
       // Optionally, also send the message via HTTP if needed
       this.chatService.sendHttpMessage(message).subscribe();
